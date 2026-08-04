@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+<meta name="googlebot" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>きづき手帳</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#FDFCFA">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="きづき手帳">
+<style>
+:root{
+  --ink:#2E2C28; --sub:#5F5E5A; --muted:#8A8880;
+  --line:#E5E2DA; --paper:#FDFCFA; --panel:#F6F3ED; --accent:#1C406E;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+body{
+  margin:0; background:var(--paper); color:var(--ink);
+  font-family:"Hiragino Sans","Noto Sans JP",sans-serif;
+  line-height:2; -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:600px; margin:0 auto; padding:0 22px 60px}
+button{font-family:inherit; cursor:pointer}
+
+/* 入り口 */
+#entry{
+  min-height:100vh; min-height:100dvh;
+  display:flex; flex-direction:column; justify-content:center; align-items:center;
+  text-align:center; padding:40px 30px;
+  background:linear-gradient(180deg, rgba(28,64,110,.07), var(--paper) 55%);
+}
+#entry .brand{font-size:21px; font-weight:600; color:var(--accent); letter-spacing:.06em; margin:0 0 28px}
+#entry .lede{font-size:16px; line-height:2.3; color:var(--sub); margin:0 0 40px}
+#entry .start{
+  padding:15px 40px; border-radius:26px; background:transparent;
+  border:1px solid var(--accent); color:var(--accent);
+  font-size:16px; font-weight:500; letter-spacing:.08em;
+}
+#entry .prev{font-size:13px; color:var(--muted); margin:30px 0 0}
+
+/* ヘッダ */
+header{
+  position:sticky; top:0; z-index:5; background:var(--paper);
+  border-bottom:1px solid var(--line);
+}
+header .inner{
+  max-width:600px; margin:0 auto; padding:16px 22px;
+  display:flex; justify-content:space-between; align-items:baseline;
+}
+header .t{font-size:17px; font-weight:600; color:var(--accent); letter-spacing:.06em}
+header .c{font-size:13px; color:var(--muted); font-variant-numeric:tabular-nums}
+
+/* 一覧 */
+.lead{font-size:14px; line-height:2; color:var(--sub); margin:22px 0 20px}
+.row{
+  display:flex; align-items:center; gap:14px;
+  padding:17px 2px; border-bottom:1px solid var(--line); cursor:pointer;
+}
+.row:active{background:var(--panel)}
+.mark{width:20px; flex-shrink:0; text-align:center; font-size:15px}
+.row .ttl{flex:1; font-size:15.5px; line-height:1.7; margin:0}
+.row .n{font-size:12.5px; flex-shrink:0; font-variant-numeric:tabular-nums}
+
+/* 詳細 */
+.back{
+  background:none; border:none; padding:8px 0; margin:14px 0 24px;
+  color:var(--muted); font-size:14px; display:flex; align-items:center; gap:5px;
+}
+.d-title{
+  font-size:21px; font-weight:600; line-height:1.85; color:var(--accent);
+  margin:0 0 26px; font-family:"Hiragino Mincho ProN","Yu Mincho",serif;
+}
+.d-body{font-size:16.5px; line-height:2.5; color:var(--sub); white-space:pre-line; margin:0 0 30px}
+.checks{border-top:1px solid var(--line); padding-top:14px}
+.checks label{
+  display:flex; align-items:flex-start; gap:14px; padding:15px 2px;
+  border-bottom:1px solid var(--line); font-size:15px; line-height:1.9;
+  color:var(--sub); cursor:pointer;
+}
+.checks input{width:20px; height:20px; flex-shrink:0; margin:5px 0 0; accent-color:var(--accent)}
+
+/* AI導線 */
+.ai{border:1px dashed var(--accent); border-radius:14px; padding:20px; margin:34px 0 0}
+.ai .lb{font-size:13px; color:var(--accent); font-weight:600; margin:0 0 8px}
+.ai .ld{font-size:13.5px; color:var(--muted); margin:0 0 14px}
+.ai .pt{
+  background:var(--panel); border-radius:10px; padding:16px;
+  font-size:14.5px; line-height:2; color:var(--ink); font-style:italic; margin:0 0 14px;
+}
+.ai .cp{
+  background:transparent; border:1px solid var(--accent); color:var(--accent);
+  padding:11px 22px; border-radius:22px; font-size:13.5px;
+}
+.ai .cp.done{background:var(--accent); color:#fff}
+
+/* 足元 */
+.foot{margin-top:44px; padding-top:20px; border-top:1px solid var(--line)}
+.foot .note{font-size:12.5px; color:var(--muted); line-height:1.9; margin:0 0 16px}
+.foot .reset{
+  background:none; border:none; padding:0; color:var(--muted);
+  font-size:12.5px; text-decoration:underline;
+}
+.disc{font-size:12px; color:#A8A59D; line-height:2; margin:26px 0 0}
+.err{background:var(--panel); border-radius:10px; padding:14px 16px; font-size:13px; color:#B25A42; margin:0 0 18px}
+.hide{display:none}
+</style>
+</head>
+<body>
+
+<div id="entry">
+  <svg width="118" height="118" viewBox="0 0 120 120" style="margin-bottom:26px" aria-hidden="true">
+    <rect x="25" y="45" width="70" height="48" rx="2" fill="none" stroke="#1C406E" stroke-width="1.5" opacity=".55"/>
+    <path d="M25 47 L60 72 L95 47" fill="none" stroke="#1C406E" stroke-width="1.3" opacity=".45"/>
+    <line x1="40" y1="60" x2="52" y2="60" stroke="#1C406E" stroke-width="1" opacity=".25"/>
+    <line x1="68" y1="60" x2="80" y2="60" stroke="#1C406E" stroke-width="1" opacity=".25"/>
+    <circle cx="60" cy="30" r="3" fill="#1C406E" opacity=".4"/>
+    <path d="M60 20 L60 24 M52 24 L55 27 M68 24 L65 27" stroke="#1C406E" stroke-width="1" opacity=".3"/>
+  </svg>
+  <p class="brand">きづき手帳</p>
+  <p class="lede">知らないままでは、<br>もったいない。<br><br>もらえるもの、使える制度を、<br>ひとつずつ、たしかめていきます。<br><br>今日は、ひとつだけ。</p>
+  <button class="start" id="startBtn">たしかめて、みる</button>
+  <p class="prev hide" id="prevNote"></p>
+</div>
+
+<div id="main" class="hide">
+  <header><div class="inner">
+    <span class="t">きづき手帳</span>
+    <span class="c" id="counter"></span>
+  </div></header>
+
+  <div class="wrap">
+    <div id="listView">
+      <p class="err hide" id="err"></p>
+      <p class="lead">知らないままでは、もったいない。<br>今日は、ひとつだけ、たしかめてみませんか。</p>
+      <div id="list"></div>
+      <div class="foot">
+        <p class="note">たしかめたことは、この端末に記録されています。<br>つぎに開いたときも、続きから。</p>
+        <button class="reset" id="resetBtn">記録を消す</button>
+      </div>
+      <p class="disc">※ 制度の金額や条件は、年度によって見直されます。実際の手続きの前に、市区町村の窓口、年金事務所、加入している健康保険で、かならずご確認ください。</p>
+    </div>
+
+    <div id="detailView" class="hide">
+      <button class="back" id="backBtn">&lsaquo; もどる</button>
+      <h2 class="d-title" id="dTitle"></h2>
+      <p class="d-body" id="dBody"></p>
+      <div class="checks" id="dChecks"></div>
+      <div class="ai hide" id="aiBox">
+        <p class="lb">◇ AIに、たずねてみませんか</p>
+        <p class="ld">すこし、深く知りたくなったら。</p>
+        <p class="pt" id="aiPrompt"></p>
+        <button class="cp" id="copyBtn">この文をコピーする</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const KEY = "kizuki-techo-morai:v1";
+const C = [
+ {
+  "id": "zaishoku",
+  "title": "もらえないと、思っていた",
+  "body": "働きながら、年金を受け取る。\n収入が多いと、年金は止まる。\n\nそう知っていた人ほど、\n「どうせもらえない」と、\n請求そのものを、していませんでした。\n\nけれど、止まるかどうかの境目が、\n2026年度から、大きく変わりました。\n\n51万円から、65万円へ。\n\n同じ働き方、同じ年金額でも、\n受け取れる人が、生まれています。",
+  "checks": [
+   "働きながらでも年金が受け取れるようになったことを知っている",
+   "「どうせもらえない」と思って、請求していない年金がある",
+   "年金事務所で試算を頼めることを知っている"
+  ],
+  "prompt": "働きながら年金を受け取る場合について教えてください。わたしの年齢、今の月収、加入していた厚生年金の期間を伝えるので、2026年度の在職老齢年金のしくみで、年金が止まるかどうかの考え方を、やさしく説明してください"
+ },
+ {
+  "id": "kakyu",
+  "title": "止まっていたのは、それだけではなかった",
+  "body": "厚生年金が止まっているあいだ、\nいっしょに止まっていたものが、ありました。\n\n配偶者加給年金。\n年に、四十二万円あまり。\n\nけれど、厚生年金が一部でも動きはじめれば、\nこれも、全額もどってきます。\n\nそれから、老齢基礎年金。\nこちらは、そもそも止まらないもの。\n暮らしの土台となる年金だから、と定められています。\n\n請求さえ、していれば。",
+  "checks": [
+   "配偶者加給年金の対象になるか、確認したことがある",
+   "老齢基礎年金は在職老齢年金の影響を受けないことを知っている",
+   "年金の受給権は5年で時効になることを知っている"
+  ],
+  "prompt": "配偶者加給年金について教えてください。わたしと配偶者の年齢、厚生年金の加入期間を伝えるので、受け取れる可能性があるか、やさしく説明してください"
+ },
+ {
+  "id": "kougaku",
+  "title": "知らずに、払いすぎていませんか",
+  "body": "病院にかかったとき、\nお金が、かさむ月が、あります。\n\nそんなとき、支払いに、上限を定めてくれる、\n高額療養費制度という、しくみがあります。\n\n2026年8月から、この上限が、少しずつ変わります。\n\n正確な金額は、\n加入している健康保険に、\nたずねてみてください。",
+  "checks": [
+   "加入している健康保険を確認した",
+   "自分の所得区分を大まかに把握した",
+   "2026年8月からの上限額を確認した"
+  ],
+  "prompt": "高額療養費制度について教えてください。わたしの年齢と、加入している健康保険（協会けんぽ・国保など）を伝えるので、自己負担の上限がどのくらいになるか、やさしく教えてください"
+ },
+ {
+  "id": "iryohi",
+  "title": "払った分だけ、戻ることがある",
+  "body": "1年間に、病院や薬局で払ったお金。\nそれが、多かった年は、\n税金の一部が、戻ってくることがあります。\n\n家族の分も、あわせられることを、\n知らない方も、多いようです。\n\nレシートを、ひと月ごとに、\nまとめておくと、あとが楽になります。",
+  "checks": [
+   "1年間の医療費レシートをまとめている",
+   "家族分を合算できることを知っている"
+  ],
+  "prompt": "医療費控除について教えてください。今年、家族で払った医療費のおおよその金額を伝えるので、どのくらい税金が戻りそうか、目安を教えてください"
+ },
+ {
+  "id": "kaigo",
+  "title": "介護にも、上限がある",
+  "body": "介護のサービスを、使っていると、\n自己負担が、家計を、圧迫することがあります。\n\nけれど、これにも、\n1か月あたりの上限が、定められています。\n\n超えた分は、申請すれば、\n戻ってくることがあります。",
+  "checks": [
+   "家族や自分の介護サービス利用状況を把握している",
+   "「高額介護サービス費」という言葉を知っている",
+   "市区町村の介護保険課の連絡先を控えている"
+  ],
+  "prompt": "高額介護サービス費について教えてください。介護保険サービスを使っている家族の要介護度と収入の目安を伝えるので、上限額がどのくらいになるか教えてください"
+ },
+ {
+  "id": "shisetsu",
+  "title": "施設に入るときも、支えがある",
+  "body": "介護施設を、利用するとき。\n食費や、部屋代は、自分で払うのが、原則です。\n\nけれど、所得や、資産が、少ない方には、\nその負担を、軽くする、しくみがあります。\n\n事前に、申請が、必要です。\n入る前に、知っておきたいことです。",
+  "checks": [
+   "将来、施設利用の可能性を考えたことがある",
+   "「負担限度額認定証」という言葉を知っている"
+  ],
+  "prompt": "介護保険の負担限度額認定について教えてください。対象になる条件と、申請の流れを、やさしく教えてください"
+ },
+ {
+  "id": "shienkyufu",
+  "title": "年金に、上乗せがあるかもしれない",
+  "body": "年金を受け取っている方のなかで、\n所得が、一定より少ない方には、\n上乗せの給付金が、あります。\n\n知らなければ、\n申請することすら、できません。\n\n年金事務所や、市区町村の窓口で、\nたずねてみてください。",
+  "checks": [
+   "「年金生活者支援給付金」という言葉を聞いたことがある",
+   "自分（または家族）が対象か確認したことがある"
+  ],
+  "prompt": "年金生活者支援給付金について教えてください。わたしの年金の受給額の目安を伝えるので、対象になりそうか教えてください"
+ },
+ {
+  "id": "hikazei",
+  "title": "知らせは、待っていても来ない",
+  "body": "住民税が、かからない世帯には、\n物価の高まりに応じて、\n臨時の給付金が、出ることがあります。\n\nその年によって、\nかたちが、変わるものです。\n\n市区町村の、たよりを、\nときどき、めくってみてください。",
+  "checks": [
+   "自分の世帯が住民税非課税かどうか把握している",
+   "市区町村の広報を定期的に見る習慣がある"
+  ],
+  "prompt": "住民税非課税世帯向けの給付金について教えてください。今、どのような支援があるか、調べ方もあわせて教えてください"
+ },
+ {
+  "id": "kouki",
+  "title": "75歳から、変わること",
+  "body": "75歳になると、\n後期高齢者医療制度という、\n新しいしくみに、入ります。\n\n条件によっては、\n窓口での、負担が、軽くなることも、あります。\n\n75歳が、近づいたら、\n一度、窓口で、たずねてみましょう。",
+  "checks": [
+   "75歳以上の家族がいる、またはもうすぐ75歳になる",
+   "窓口負担割合を確認したことがある"
+  ],
+  "prompt": "後期高齢者医療制度について教えてください。窓口負担の割合がどう決まるか、やさしく説明してください"
+ },
+ {
+  "id": "kaishu",
+  "title": "手すりひとつにも、支えがある",
+  "body": "手すりを、つける。\n段差を、なくす。\n\nそんな、住まいの改修に、\n介護保険から、費用の一部が、出ることがあります。\n\nただし、工事の前に、\n申請が、必要です。\n\n思い立ったら、\nまず、ケアマネジャーに、相談を。",
+  "checks": [
+   "要支援・要介護の認定を受けている（または家族が）",
+   "住まいの改修を考えたことがある",
+   "工事前の申請が必要なことを知っている"
+  ],
+  "prompt": "介護保険の住宅改修費について教えてください。対象になる工事の種類と、申請の流れを教えてください"
+ },
+ {
+  "id": "tokutei",
+  "title": "続く治療に、寄りそうしくみ",
+  "body": "人工透析など、\n長く、続けていく治療には、\n自己負担を、大きく減らせる、しくみがあります。\n\n月々の負担が、\n1万円ほどに、なることもあります。\n\n加入している健康保険に、\nたずねてみてください。",
+  "checks": [
+   "長期の治療が必要な病気が自分や家族にある",
+   "「特定疾病療養受療証」という言葉を知っている"
+  ],
+  "prompt": "特定疾病療養受療証について教えてください。対象になる病気と、申請の方法を教えてください"
+ },
+ {
+  "id": "hokenryo",
+  "title": "まとめて払った、保険料",
+  "body": "家族の分の、保険料を、\nまとめて払っている方へ。\n\n申告すれば、\n税金が、安くなることがあります。\n\n年金の、源泉徴収票と、\n照らし合わせてみてください。",
+  "checks": [
+   "源泉徴収票の内容を確認したことがある",
+   "家族の保険料をまとめて払っている"
+  ],
+  "prompt": "社会保険料控除について教えてください。家族の分の保険料を払っている場合、どのように申告すればよいか教えてください"
+ },
+ {
+  "id": "onaji",
+  "title": "多くの人が、おなじ道を歩いている",
+  "body": "お金を、あまり使わないようにしている。\nそう感じること、ありませんか。\n\n実は、60代の多くの方が、\n同じように、生活費をおさえて、暮らしているそうです。\n\n節約しすぎているのかな。\nそう思うことがあっても——\n\nそれは、あなただけの、特別なことでは、ないのです。",
+  "checks": [
+   "生活費を、必要以上に切りつめていると感じることがある",
+   "自分の暮らし方は、人と比べて質素だと感じている"
+  ],
+  "prompt": null
+ },
+ {
+  "id": "tameru",
+  "title": "貯めることも、使うことも",
+  "body": "じゅうぶんな収入があっても、\nなるべく使わないように。\nそう、心がけている方が、多いようです。\n\nけれど、少し立ち止まって、考えてみませんか。\n\n貯めることと、おなじくらい。\n使うことにも、意味があります。\n\n今日という日を、\nすこし、たいせつに、味わってみるのも——\nいいのかもしれません。",
+  "checks": [
+   "「もっと使ってもいい」と、思ったことがある",
+   "自分のために使うお金を、後回しにしがちだ",
+   "今日、何か自分を喜ばせることをしてみたい"
+  ],
+  "prompt": null
+ }
+];
+
+let ck = {};
+const total = C.reduce((s,c)=>s+c.checks.length,0);
+const $ = id => document.getElementById(id);
+
+function load(){
+  try{ const r = localStorage.getItem(KEY); return r ? JSON.parse(r) : null; }
+  catch(e){ return null; }
+}
+function save(visited){
+  try{
+    localStorage.setItem(KEY, JSON.stringify({ck, visited}));
+    $("err").classList.add("hide");
+  }catch(e){
+    $("err").textContent = "記録がうまく保存できませんでした。ブラウザの設定で、保存が制限されているかもしれません。";
+    $("err").classList.remove("hide");
+  }
+}
+const done = c => c.checks.filter((_,i)=>ck[c.id+":"+i]).length;
+const totalDone = () => C.reduce((s,c)=>s+done(c),0);
+
+function mark(d,n){
+  if(d===0) return ['○','var(--muted)'];
+  if(d<n)   return ['◒','var(--accent)'];
+  return ['✓','var(--accent)'];
+}
+
+function renderList(){
+  $("counter").textContent = totalDone()+" / "+total;
+  $("list").innerHTML = C.map((c,i)=>{
+    const d=done(c), n=c.checks.length, [m,col]=mark(d,n);
+    return '<div class="row" data-i="'+i+'">'+
+      '<span class="mark" style="color:'+col+'">'+m+'</span>'+
+      '<p class="ttl">'+c.title+'</p>'+
+      '<span class="n" style="color:'+(d>0?'var(--accent)':'var(--muted)')+'">'+d+'/'+n+'</span></div>';
+  }).join("");
+  [...$("list").children].forEach(el=>{
+    el.onclick = ()=> openDetail(C[+el.dataset.i]);
+  });
+}
+
+function openDetail(c){
+  $("listView").classList.add("hide");
+  $("detailView").classList.remove("hide");
+  $("dTitle").textContent = c.title;
+  $("dBody").textContent = c.body;
+  $("dChecks").innerHTML = c.checks.map((l,i)=>
+    '<label><input type="checkbox" data-i="'+i+'"'+(ck[c.id+":"+i]?' checked':'')+'><span>'+l+'</span></label>'
+  ).join("");
+  $("dChecks").querySelectorAll("input").forEach(inp=>{
+    inp.onchange = ()=>{ ck[c.id+":"+inp.dataset.i] = inp.checked; save(true); };
+  });
+  if(c.prompt){
+    $("aiBox").classList.remove("hide");
+    $("aiPrompt").textContent = "「"+c.prompt+"」";
+    $("copyBtn").textContent = "この文をコピーする";
+    $("copyBtn").classList.remove("done");
+    $("copyBtn").onclick = ()=>{
+      navigator.clipboard.writeText(c.prompt).then(()=>{
+        $("copyBtn").textContent = "コピーしました";
+        $("copyBtn").classList.add("done");
+      }).catch(()=>{
+        $("copyBtn").textContent = "長押しで選択してください";
+      });
+    };
+  }else{
+    $("aiBox").classList.add("hide");
+  }
+  window.scrollTo(0,0);
+}
+
+$("startBtn").onclick = ()=>{
+  $("entry").classList.add("hide");
+  $("main").classList.remove("hide");
+  renderList(); save(true);
+};
+$("backBtn").onclick = ()=>{
+  $("detailView").classList.add("hide");
+  $("listView").classList.remove("hide");
+  renderList(); window.scrollTo(0,0);
+};
+$("resetBtn").onclick = ()=>{
+  if(confirm("たしかめた記録を、すべて消します。よろしいですか。")){
+    ck = {}; save(true); renderList();
+  }
+};
+
+(function init(){
+  const s = load();
+  if(s){
+    ck = s.ck || {};
+    if(s.visited){
+      $("entry").classList.add("hide");
+      $("main").classList.remove("hide");
+      renderList();
+      return;
+    }
+  }
+  if(totalDone()>0){
+    $("prevNote").textContent = "前回までに、"+totalDone()+"個 たしかめています";
+    $("prevNote").classList.remove("hide");
+  }
+})();
+</script>
+</body>
+</html>
