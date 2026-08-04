@@ -1,0 +1,9 @@
+{
+  "name": "きづき手帳",
+  "short_name": "きづき手帳",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#FDFCFA",
+  "theme_color": "#FDFCFA",
+  "orientation": "portrait"
+}
